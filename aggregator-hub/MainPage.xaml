@@ -8,9 +8,18 @@
     x:Class="aggregator_hub.MainPage"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <ComboBox x:Name="comboBox" HorizontalAlignment="Left" Margin="402,28,0,0" VerticalAlignment="Top" Width="452"/>
-        <StackPanel x:Name="Stack_1" HorizontalAlignment="Left" Height="221" Margin="10,80,0,0" VerticalAlignment="Top" Width="100"/>
-
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0,0,-832,0">
+        <Hub Header="Hub" Margin="-1,-1,1,1">
+            <HubSection Header="HubSection 0" Width="350" Margin="50">
+                <DataTemplate>
+                    <Grid/>
+                </DataTemplate>
+            </HubSection>
+            <HubSection Header="HubSection 1" Width="350" Margin="50">
+                <DataTemplate>
+                    <Grid/>
+                </DataTemplate>
+            </HubSection>
+        </Hub>
     </Grid>
 </Page>

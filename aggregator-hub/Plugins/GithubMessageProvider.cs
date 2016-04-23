@@ -5,13 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Data.Json;
 
 namespace aggregator_hub.Plugins
 {
     class GithubMessageProvider : IMessageProvider
     {
         private const string NAME = "GitHub Message Provider";
-        private const string GITHUB_API_URI = "https://api.github.com/repos";
+        private const string GITHUB_API_URI = "https://api.github.com/repos/";
 
         public string RepositoryName { get; set; }
         public string RepositoryOwner { get; set; }
@@ -23,13 +24,89 @@ namespace aggregator_hub.Plugins
                 throw new InvalidOperationException("Both repository name and repository owner must be set in order to fetch messages.");
 
             HttpClient client = context.AppHttpClient.HttpClient;
-            Uri uri = new Uri(GITHUB_API_URI + RepositoryOwner + "/" + RepositoryName);
+            Uri baseUri = new Uri(GITHUB_API_URI + RepositoryOwner + "/" + RepositoryName);
             List<Message> messages = new List<Message>();
 
-            List<Message> commits = await FetchCommits(client, uri);
+            //List<Message> commits = await FetchCommits(client, uri);
+            //Uri commitsUri = new Uri(uri.ToString() + "/commits");
+            Uri commitsUri = new Uri(baseUri + "/commits");
 
-            messages.Union(commits);
+            //Prepare request message
+            HttpRequestMessage commitsRequest = new HttpRequestMessage(HttpMethod.Get, commitsUri);
+            commitsRequest.Headers.Add("Accept", "*/*");
+            commitsRequest.Headers.Add("User-Agent", "curl/7.46.0");
 
+            //Send the GET request asynchronously and retrieve the response as a string.
+            HttpResponseMessage commitsHttpResponse = new HttpResponseMessage();
+            string httpResponseBody = "";
+
+            try
+            {
+                //Send the GET request
+                commitsHttpResponse = await client.SendRequestAsync(commitsRequest);
+                commitsHttpResponse.EnsureSuccessStatusCode();
+                httpResponseBody = await commitsHttpResponse.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                httpResponseBody = "Error: " + ex.HResult.ToString("X") + " Message: " + ex.Message;
+            }
+
+            System.Diagnostics.Debug.WriteLine(httpResponseBody);
+
+            // Parse Json Array
+            JsonArray jsonResponse = parseJsonArray(httpResponseBody);
+
+            // Parse JsonValues to JsonStrings
+            JsonObject[] commitsArray = convertJsonArrayToArrayOfJsonObjects(jsonResponse);
+            
+            // Create commits Messages
+            foreach(JsonObject commitObject in commitsArray)
+            {
+                Message commitMessage = new Message();
+                IJsonValue sha, message, commiter, url, date;
+
+                commitObject.TryGetValue("sha", out sha);
+                commitObject.TryGetValue("html_url", out url);
+
+                JsonObject commitDetailsObject = null;
+
+                try
+                {
+                    commitDetailsObject = commitObject.GetNamedObject("commit");
+                }
+                catch(Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex);
+                }
+                
+
+                commitDetailsObject.TryGetValue("message", out message);
+
+                JsonObject commitAuthorObject = null;
+
+                try
+                {
+                    commitAuthorObject = commitDetailsObject.GetNamedObject("author");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex);
+                }
+
+
+                commitAuthorObject.TryGetValue("date", out date);
+                commitAuthorObject.TryGetValue("name", out commiter);
+
+                commitMessage.Content = message.ToString();
+                commitMessage.Header = commiter.ToString();
+                commitMessage.Link = url.ToString();
+                commitMessage.Timestamp = date.ToString();
+
+                messages.Add(commitMessage);
+            }
+
+           
             return messages;
         }
 
@@ -37,8 +114,8 @@ namespace aggregator_hub.Plugins
         {
             return NAME;
         }
-
-        private async Task<List<Message>> FetchCommits(HttpClient client, Uri uri)
+        /*
+        private async List<Message>> FetchCommits(HttpClient client, Uri uri)
         {
             Uri commitsUri = new Uri(uri.ToString() + "/commits");
             List<Message> commits = new List<Message>();
@@ -57,21 +134,36 @@ namespace aggregator_hub.Plugins
 
             return commits;
         }
-
-        /*
-        static int Main(string[] args)
-        {
-            IMessageProviderContext context = new MessageProviderContext(new AppHttpClient());
-            GithubMessageProvider gitHubMessageProvider = new GithubMessageProvider();
-            gitHubMessageProvider.RepositoryOwner = "logistics-mgmt";
-            gitHubMessageProvider.RepositoryName = "logistics-mgmt";
-            var fetchMessagesTask = gitHubMessageProvider.FetchMessagesAsync(context);
-
-            var result = fetchMessagesTask.Result;
-
-            return 0;
-        }
         */
+        
+        private JsonArray parseJsonArray(String content)
+        {
+            JsonArray jsonArray = null;
+
+            try
+            {
+                jsonArray = JsonArray.Parse(content);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+            }
+
+            return jsonArray;
+        }
+
+        private JsonObject[] convertJsonArrayToArrayOfJsonObjects(JsonArray jsonArray)
+        {
+            JsonObject[] jsonObjectArray = new JsonObject[jsonArray.Count];
+            for(int i = 0; i< jsonArray.Count; ++i)
+            {
+                JsonObject jsonObject;
+                JsonObject.TryParse(jsonArray[i].ToString(), out jsonObject);
+                jsonObjectArray[i] = jsonObject;
+            }
+
+            return jsonObjectArray;
+        }
     }
 
 

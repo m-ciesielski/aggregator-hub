@@ -1,4 +1,7 @@
-﻿using System;
+﻿using aggregator_hub.Models;
+using aggregator_hub.Plugins;
+using aggregator_hub.Views;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +28,21 @@ namespace aggregator_hub
         public MainPage()
         {
             this.InitializeComponent();
+            List<Message> messages = new List<Message>();
+            messages.Add(new Message("Test", "123131233", "Test messsage content", "abcd"));
+            messages.Add(new Message("Test", "123131233", "Test messsage content", "abcd"));
+            messages.Add(new Message("Test", "123131233", "Test messsage content", "abcd"));
+
+            IMessageProviderContext context = new MessageProviderContext(new AppHttpClient());
+            GithubMessageProvider gitHubMessageProvider = new GithubMessageProvider();
+            gitHubMessageProvider.RepositoryOwner = "logistics-mgmt";
+            gitHubMessageProvider.RepositoryName = "logistics-mgmt";
+
+        }
+
+        private void gridView1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }

@@ -25,5 +25,10 @@ namespace aggregator_hub.Models
             this.Content = content;
             this.Link = link;
         }
+
+        override public string ToString()
+        {
+            return "Header: " + Header + ",Content: " + Content + ",Link: " + Link + ",Timestamp: " + Timestamp;
+        }
     }
 }

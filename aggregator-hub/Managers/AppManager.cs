@@ -12,8 +12,7 @@ namespace aggregator_hub.Managers
         public MessageProviderManager MessageProviderManager { get; }
         public AppHttpClient AppHttpClient{ get; }
         public List<Stage> Stages { get; }
-
-        private Stage currentStage;
+        public Stage CurrentStage { get; }
 
         public AppManager()
         {
@@ -21,8 +20,10 @@ namespace aggregator_hub.Managers
             this.MessageProviderManager = new MessageProviderManager(new MessageProviderContext(AppHttpClient));
 
             // Create blank stage
+            Stage initialStage = new Stage(MessageProviderManager);
             this.Stages = new List<Stage>();
-            Stages.Add(new Stage(MessageProviderManager));
+            Stages.Add(initialStage);
+            this.CurrentStage = initialStage;
         }
     }
 }

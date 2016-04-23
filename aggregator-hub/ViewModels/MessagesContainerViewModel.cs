@@ -1,27 +1,22 @@
 ﻿using aggregator_hub.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Controls;
 
 namespace aggregator_hub.ViewModels
 {
     class MessagesContainerViewModel
     {
-        public List<Message> Messages { get; set; }
+        public ObservableCollection<Message> Messages { get; set; }
 
 
-        public MessagesContainerViewModel()
+        public MessagesContainerViewModel(ObservableCollection<Message> messages)
         {
-            this.Messages = new List<Message>();
-            this.Messages.Add(new Message("Test", "123131233", "Test messsage content", "abcd"));
-            populateListView();
-        }
-
-        public void populateListView()
-        {
-            
+            this.Messages = messages;
         }
 
     }

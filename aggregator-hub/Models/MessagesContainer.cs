@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +11,7 @@ namespace aggregator_hub.Models
     class MessagesContainer
     {
         public string Name { get; set; }
-        public List<Message> Messages { get; set; }
+        public ObservableCollection<Message> Messages { get; set; }
         public IMessageProvider MessageProvider { get; set; }
 
         protected IMessageProviderContext MessageProviderContext;
@@ -19,9 +21,14 @@ namespace aggregator_hub.Models
             this.MessageProviderContext = messageProviderContext;
         }
 
-        public void update()
+        public async void updateAsync()
         {
-           // Messages.Union(MessageProvider.FetchMessagesAsync(MessageProviderContext));
+            List<Message> messages = await MessageProvider.FetchMessagesAsync(MessageProviderContext);
+
+            foreach (var message in messages)
+            {
+                System.Diagnostics.Debug.WriteLine(message);
+            }
         }
     }
 }

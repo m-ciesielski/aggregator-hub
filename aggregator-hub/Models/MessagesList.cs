@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace aggregator_hub.Models
 {
-    interface IMessageProviderContext
+    class MessagesList : ObservableCollection<Message>
     {
-        AppHttpClient AppHttpClient { get; }
-        MessagesContainer Container { get; }
+
     }
 }
