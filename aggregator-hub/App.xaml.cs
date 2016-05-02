@@ -1,6 +1,8 @@
 ﻿using aggregator_hub.Managers;
 using aggregator_hub.Models;
 using aggregator_hub.Plugins;
+using aggregator_hub.ViewModels;
+using aggregator_hub.Views;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,19 +39,7 @@ namespace aggregator_hub
             this.InitializeComponent();
             this.Suspending += OnSuspending;
 
-            //Initialize main components
-            AppManager appManager = new AppManager();
-            Stage initialStage = appManager.CurrentStage;
-
-            GithubMessageProvider gitHubMessageProvider = new GithubMessageProvider();
-            gitHubMessageProvider.RepositoryOwner = "logistics-mgmt";
-            gitHubMessageProvider.RepositoryName = "logistics-mgmt";
-
-            MessagesContainer testContainer = new MessagesContainer(appManager.MessageProviderManager.Context);
-            testContainer.MessageProvider = gitHubMessageProvider;
-            initialStage.Containers.Add(testContainer);
-
-            initialStage.updateContainers();
+      
         }
 
         /// <summary>

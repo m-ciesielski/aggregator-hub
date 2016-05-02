@@ -63,49 +63,8 @@ namespace aggregator_hub.Plugins
             // Create commits Messages
             foreach(JsonObject commitObject in commitsArray)
             {
-                Message commitMessage = new Message();
-                IJsonValue sha, message, commiter, url, date;
-
-                commitObject.TryGetValue("sha", out sha);
-                commitObject.TryGetValue("html_url", out url);
-
-                JsonObject commitDetailsObject = null;
-
-                try
-                {
-                    commitDetailsObject = commitObject.GetNamedObject("commit");
-                }
-                catch(Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex);
-                }
-                
-
-                commitDetailsObject.TryGetValue("message", out message);
-
-                JsonObject commitAuthorObject = null;
-
-                try
-                {
-                    commitAuthorObject = commitDetailsObject.GetNamedObject("author");
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex);
-                }
-
-
-                commitAuthorObject.TryGetValue("date", out date);
-                commitAuthorObject.TryGetValue("name", out commiter);
-
-                commitMessage.Content = message.ToString();
-                commitMessage.Header = commiter.ToString();
-                commitMessage.Link = url.ToString();
-                commitMessage.Timestamp = date.ToString();
-
-                messages.Add(commitMessage);
+                messages.Add(createCommitMessage(commitObject));
             }
-
            
             return messages;
         }
@@ -114,27 +73,6 @@ namespace aggregator_hub.Plugins
         {
             return NAME;
         }
-        /*
-        private async List<Message>> FetchCommits(HttpClient client, Uri uri)
-        {
-            Uri commitsUri = new Uri(uri.ToString() + "/commits");
-            List<Message> commits = new List<Message>();
-
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync(commitsUri);
-                response.ToString();
-
-            }
-            catch
-            {
-
-            }
-
-
-            return commits;
-        }
-        */
         
         private JsonArray parseJsonArray(String content)
         {
@@ -163,6 +101,47 @@ namespace aggregator_hub.Plugins
             }
 
             return jsonObjectArray;
+        }
+
+        private Message createCommitMessage(JsonObject commitJson)
+        {
+            Message commitMessage = new Message();
+            IJsonValue sha, message, commiter, url, date;
+
+            commitJson.TryGetValue("sha", out sha);
+            commitJson.TryGetValue("html_url", out url);
+
+            JsonObject commitDetailsObject = null;
+            try
+            {
+                commitDetailsObject = commitJson.GetNamedObject("commit");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+            }
+
+            commitDetailsObject.TryGetValue("message", out message);
+             
+            JsonObject commitAuthorObject = null;
+            try
+            {
+                commitAuthorObject = commitDetailsObject.GetNamedObject("author");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
+            }
+
+            commitAuthorObject.TryGetValue("date", out date);
+            commitAuthorObject.TryGetValue("name", out commiter);
+
+            commitMessage.Content = (message != null ) ? message.ToString().Replace("\"", "") : "";
+            commitMessage.Header = (commiter != null) ? commiter.ToString().Replace("\"", "") : "";
+            commitMessage.Link = (url != null) ? url.ToString().Replace("\"", "") : "";
+            commitMessage.Timestamp = (date != null) ? date.ToString().Replace("\"", ""): "";
+
+            return commitMessage;
         }
     }
 

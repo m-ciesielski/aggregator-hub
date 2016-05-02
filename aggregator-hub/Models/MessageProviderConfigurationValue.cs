@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace aggregator_hub.Models
 {
-    interface IMessageProviderConfiguration
+    class MessageProviderConfiguration
     {
     }
 }

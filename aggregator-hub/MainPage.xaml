@@ -9,17 +9,39 @@
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0,0,-832,0">
-        <Hub Header="Hub" Margin="-1,-1,1,1">
-            <HubSection Header="HubSection 0" Width="350" Margin="50">
+        <Hub Header="Hub" Margin="-1,-1,1,1" Name="StageHub">
+            <HubSection Header="GitHub commits" Width="350" Margin="50" Name="HubSection0">
                 <DataTemplate>
-                    <Grid/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Button x:Name="updateButton" Content="Update" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0" Click="updateButton_click"/>
+                        <Button x:Name="settingsButton" Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="0"/>
+                        <ListView Width="300" x:Name="MessagesViewListView" ItemsSource="{Binding Messages}" Grid.Row="1">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Header}" x:Name="header" Margin="0,0,0,0" FontStyle="Italic" TextWrapping="Wrap" FontSize="20"/>
+                                        <TextBlock Text="{Binding Content}" x:Name="content" Margin="0,0,0,0" FontStyle="Italic" TextWrapping="Wrap" FontSize="20"/>
+                                        <TextBlock x:Name="link" Margin="0,0,0,0" FontStyle="Italic" TextWrapping="Wrap"  FontSize="20"><Hyperlink NavigateUri="{Binding Link}" >Link</Hyperlink></TextBlock>
+                                        <TextBlock Text="{Binding Timestamp}" x:Name="timestamp" Margin="0,0,0,0" FontStyle="Italic" TextWrapping="Wrap" FontSize="10"/>
+
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                            <ListView.Items>
+                                <ListViewItem>test test test test</ListViewItem>
+                            </ListView.Items>
+
+                        </ListView>
+                    </Grid>
+
                 </DataTemplate>
-            </HubSection>
-            <HubSection Header="HubSection 1" Width="350" Margin="50">
-                <DataTemplate>
-                    <Grid/>
-                </DataTemplate>
+
             </HubSection>
         </Hub>
+
     </Grid>
 </Page>

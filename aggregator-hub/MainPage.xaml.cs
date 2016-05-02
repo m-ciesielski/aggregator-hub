@@ -1,5 +1,7 @@
-﻿using aggregator_hub.Models;
+﻿using aggregator_hub.Managers;
+using aggregator_hub.Models;
 using aggregator_hub.Plugins;
+using aggregator_hub.ViewModels;
 using aggregator_hub.Views;
 using System;
 using System.Collections.Generic;
@@ -28,19 +30,64 @@ namespace aggregator_hub
         public MainPage()
         {
             this.InitializeComponent();
-            List<Message> messages = new List<Message>();
-            messages.Add(new Message("Test", "123131233", "Test messsage content", "abcd"));
-            messages.Add(new Message("Test", "123131233", "Test messsage content", "abcd"));
-            messages.Add(new Message("Test", "123131233", "Test messsage content", "abcd"));
 
-            IMessageProviderContext context = new MessageProviderContext(new AppHttpClient());
+            //Initialize main components
+            AppManager appManager = new AppManager();
+            Stage initialStage = appManager.CurrentStage;
+
             GithubMessageProvider gitHubMessageProvider = new GithubMessageProvider();
             gitHubMessageProvider.RepositoryOwner = "logistics-mgmt";
             gitHubMessageProvider.RepositoryName = "logistics-mgmt";
 
+            MessagesContainer testContainer = new MessagesContainer(appManager.MessageProviderManager.Context);
+            testContainer.MessageProvider = gitHubMessageProvider;
+            initialStage.Containers.Add(testContainer);
+            testContainer.Messages.Add(new Message("testHeader", "1234", "testContent", "http://test.pl"));
+            initialStage.updateContainers();
+
+            MessagesContainerViewModel testContainerViewModel = new MessagesContainerViewModel(testContainer);
+            HubSection0.DataContext = testContainerViewModel;
+
+
+            // Dynamically created container MVVM 
+            GithubMessageProvider newtonMessagesProvider = new GithubMessageProvider();
+            newtonMessagesProvider.RepositoryOwner = "m-ciesielski";
+            newtonMessagesProvider.RepositoryName = "newtons-interpolation";
+
+            MessagesContainer newtonContainer = new MessagesContainer(appManager.MessageProviderManager.Context);
+            newtonContainer.MessageProvider = newtonMessagesProvider;
+            initialStage.Containers.Add(newtonContainer);
+            initialStage.updateContainers();
+
+            MessagesContainerViewModel newtonViewModel = new MessagesContainerViewModel(newtonContainer);
+
+            MessagesContainerView newtonView = MessagesContainerViewFactory.createMessagesContainerView(newtonViewModel, StageHub);
+
+            // Dynamically created container MVVM - Slack
+            SlackMessageProvider slackMessagesProvider = new SlackMessageProvider();
+            slackMessagesProvider.AuthToken = "xoxp-14123929075-14126498321-39212835763-6796628539";
+            slackMessagesProvider.Channel = "C0E3RLZKJ";
+
+            MessagesContainer slackMessagesContainer = new MessagesContainer(appManager.MessageProviderManager.Context);
+            slackMessagesContainer.MessageProvider = slackMessagesProvider;
+            initialStage.Containers.Add(slackMessagesContainer);
+            initialStage.updateContainers();
+
+            MessagesContainerViewModel slackMessagesViewModel = new MessagesContainerViewModel(slackMessagesContainer);
+
+            MessagesContainerView slackMessagesView = MessagesContainerViewFactory.createMessagesContainerView(slackMessagesViewModel, StageHub);
+
+
+            testContainerViewModel.ToString();
+
         }
 
         private void gridView1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
+
+        private void updateButton_click(object sender, RoutedEventArgs e)
         {
 
         }

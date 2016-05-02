@@ -3,6 +3,34 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:aggregator_hub"
-    RequestedTheme="Light">
+    RequestedTheme="Dark">
 
+    <Application.Resources>
+        <DataTemplate x:Key="MessagesViewDataTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Button x:Name="updateButton" Command="{Binding Update}" Content="Update" HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="0"/>
+                <Button x:Name="settingsButton" Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="0"/>
+                <ListView Grid.Row="1" Width="300" x:Name="MessagesViewListView" ItemsSource="{Binding Messages}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Header}" x:Name="header" Margin="0,0,0,0" FontStyle="Italic" TextWrapping="Wrap" FontSize="20"/>
+                                <TextBlock Text="{Binding Content}" x:Name="content" Margin="0,0,0,0" FontStyle="Italic" TextWrapping="Wrap" FontSize="20"/>
+                                <TextBlock x:Name="link" Margin="0,0,0,0" FontStyle="Italic" TextWrapping="Wrap"  FontSize="20"><Hyperlink NavigateUri="{Binding Link}" ><Run Text="{Binding Link}"/></Hyperlink></TextBlock>
+                                <TextBlock Text="{Binding Timestamp}" x:Name="timestamp" Margin="0,0,0,0" FontStyle="Italic" TextWrapping="Wrap" FontSize="10"/>
+
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+
+                </ListView>
+            </Grid>
+            
+        </DataTemplate>
+    </Application.Resources>
+    
 </Application>
